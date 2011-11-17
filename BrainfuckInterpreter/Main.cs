@@ -7,6 +7,7 @@ namespace BrainfuckInterpreter
 		private int[] buffer = new int[30000];
 		private int dataPointer = 0;
 		private int codePointer = -1;
+		private int nestedLoopDepth = 0;
 		
 		private string program;
 		private char[] codeArray;
