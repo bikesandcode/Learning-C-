@@ -111,7 +111,7 @@ namespace BrainfuckInterpreter
 		public static void Main (string[] args)
 		{
 			var filename = args[0];
-			var myFile = new System.IO.StreamReader("../../" + filename);
+			var myFile = new System.IO.StreamReader(filename);
 			var contents = myFile.ReadToEnd();
 			myFile.Close();
 			
