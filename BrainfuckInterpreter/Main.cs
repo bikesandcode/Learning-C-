@@ -47,6 +47,9 @@ namespace BrainfuckInterpreter
 					}
 					case ',': 
 					{
+						int read = Console.Read();
+						Console.WriteLine("Read in {0}", read);
+						buffer[dataPointer] = read;
 						break;
 					}
 					case '[': 
@@ -91,10 +94,7 @@ namespace BrainfuckInterpreter
 				//scan forward to next ]
 				while( codeArray[codePointer] != ']' ) codePointer++;				
 			}
-			else
-			{
-				//proceed normally				
-			}
+			//else proceed normally				
 		}
 		
 		/**
