@@ -21,64 +21,70 @@ namespace BrainfuckInterpreter
 		
 		public void Execute()
 		{
-			Console.WriteLine("Executing the program");			
-			while( codePointer < program.Length-1 )
-			{
-				codePointer++;
-				char next = codeArray[codePointer];
-				switch (next)
+			try{
+				while( codePointer < program.Length-1 )
 				{
-					case '+': 
-					{ 
-						//Console.WriteLine("++");
-						buffer[dataPointer]++; 
-						break; 
-					}
-					case '-': 
-					{ 
-						//Console.WriteLine("--");
-						buffer[dataPointer]--; 
-						break;
-					}
-					case '.': 
-					{ 
-						//Console.WriteLine("Print ptr={0}", dataPointer);
-						Console.Write((char)(buffer[dataPointer])); 
-						break;
-					}
-					case ',': 
+					codePointer++;
+					char next = codeArray[codePointer];
+					switch (next)
 					{
-						int read = Console.Read();
-						Console.WriteLine("Read in {0}", read);
-						buffer[dataPointer] = read;
-						break;
-					}
-					case '[': 
-					{ 
-						//Console.WriteLine("{");
-						LoopStart(); 
-						break;
-					}
-					case ']': 
-					{ 
-						//Console.WriteLine("}");
-						LoopEnd(); 
-						break;
-					}
-					case '<': 
-					{ 						
-						//Console.WriteLine("ptr--");
-						dataPointer--; 
-						break;
-					}
-					case '>': 
-					{
-						//Console.WriteLine("ptr++");
-						dataPointer++; 
-						break;
-					}
-					default: {break;} //Ignore all else
-				}				
+						case '+': 
+						{ 
+							//Console.WriteLine("++");
+							buffer[dataPointer]++; 
+							break; 
+						}
+						case '-': 
+						{ 
+							//Console.WriteLine("--");
+							buffer[dataPointer]--; 
+							break;
+						}
+						case '.': 
+						{ 
+							//Console.WriteLine("Print ptr={0}", dataPointer);
+							Console.Write((char)(buffer[dataPointer])); 
+							break;
+						}
+						case ',': 
+						{
+							int read = Console.Read();
+							buffer[dataPointer] = read;
+							break;
+						}
+						case '[': 
+						{ 
+							//Console.WriteLine("{");
+							LoopStart(); 
+							break;
+						}
+						case ']': 
+						{ 
+							//Console.WriteLine("}");
+							LoopEnd(); 
+							break;
+						}
+						case '<': 
+						{ 						
+							//Console.WriteLine("ptr--");
+							dataPointer--; 
+							break;
+						}
+						case '>': 
+						{
+							//Console.WriteLine("ptr++");
+							dataPointer++; 
+							break;
+						}
+						default: {break;} //Ignore all else
+					}				
+				}
+			}
+			catch(System.IndexOutOfRangeException e)
+			{
+				Console.WriteLine("Array index out of range hit. Dump: ");
+				Console.WriteLine("DataPtr: {0}", dataPointer);
+				Console.WriteLine("CodePtr: {0}", codePointer);
 			}
 		}
 		
@@ -90,12 +96,8 @@ namespace BrainfuckInterpreter
 		 **/
 		private void LoopStart()
 		{
-			if( buffer[dataPointer] == 0 )
-			{
-				//scan forward to next ]
-				while( codeArray[codePointer] != ']' ) codePointer++;				
-			}
-			//else proceed normally				
+			nestedLoopDepth++;
+			if( buffer[dataPointer] == 0 ) ScanToMatchingClose(false);
 		}
 		
 		/**
@@ -104,9 +106,33 @@ namespace BrainfuckInterpreter
 		 **/
 		private void LoopEnd()
 		{
-			while( codeArray[codePointer] != '[') codePointer--;
+			ScanToMatchingOpen(false);
 			//And back so the next tick puts us on the loop start.
 			codePointer--;
+			nestedLoopDepth--;
+		}
+		
+		/**
+		 * Scan forward to the matching close loop character
+		 **/
+		private void ScanToMatchingClose(bool nested)
+		{
+			while( codeArray[codePointer] != ']' )
+			{
+				codePointer++;
+				if( codeArray[codePointer] == '[' ) ScanToMatchingClose(true);
+			}
+			if( nested ) codePointer++;
+		}
+		
+		private void ScanToMatchingOpen(bool nested)
+		{
+			while( codeArray[codePointer] != '[' )
+			{
+				codePointer--;
+				if( codeArray[codePointer] == ']' ) ScanToMatchingOpen(true);
+			}
+			if( nested ) codePointer--;
 		}
 		
 		public static void Main (string[] args)
